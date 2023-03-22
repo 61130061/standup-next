@@ -35,6 +35,7 @@ const standupMenu = {
 }
 
 const client = new Client(lineConfig);
+const talkingUsers = [];
 
 export default async function handler(req, res) {
   const middlewareFunc = middleware(lineConfig);
@@ -58,7 +59,9 @@ export default async function handler(req, res) {
       const events = req.body.events;
 
       for (const event of events) {
-        if (event.type === 'message' && event.message.type === 'text') {
+        if (event.type === 'message' && event.message.type === 'text' && !talkingUsers.includes(event.source.userId)) {
+          talkingUsers.push(event.source.userId)
+
           switch (event.message.text) {
             case 'standup':
               await client.replyMessage(event.replyToken, standupMenu);
@@ -90,6 +93,11 @@ export default async function handler(req, res) {
                   ]);
                 }
               }
+          }
+
+          const index = talkingUsers.indexOf(event.source.userId);
+          if (index > -1) {
+            talkingUsers.splice(index, 1);
           }
         }
       }
