@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id          String      @id
+
+  workspaces  Workspace[]
+}
+
+model Workspace {
+  id          String      @id @default(uuid())
+  userId      String
+  name        String      @db.TinyText
+  createdAt   DateTime    @default(now())
+
+  start       DateTime    @db.Time
+  stop        DateTime    @db.Time
+  days        Json
+
+  questions   Question[]
+  members     User[]
+}
+
+model Question {
+  id              String      @id @default(uuid())
+  name            String
+  index           Int
+
+  Workspace       Workspace   @relation(fields: [workspaceId], references: [id])
+  workspaceId     String
+}
