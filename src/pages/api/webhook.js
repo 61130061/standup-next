@@ -80,11 +80,14 @@ export default async function handler(req, res) {
 
                 // Wait for the user's response
                 const response = await waitForUserResponse(event.source.userId);
+                console.log('debug response 0 ' + response);
 
                 if (index < questions.length) {
                   // Collect response and
+                  console.log('debug response')
                   responses.push(response);
                 } else {
+                  console.log('debug thank you')
                   // Thank for response
                   await client.replyMessage(event.replyToken, [
                     {
@@ -125,6 +128,7 @@ async function waitForUserResponse(userId) {
       if (messages.length > 0) {
         const message = messages[messages.length - 1];
         if (message.type === 'text') {
+          console.log('debug 1');
           clearInterval(interval);
           resolve(message.text);
         }
