@@ -68,10 +68,15 @@ export default async function handler(req, res) {
             default:
               for (let i = 0; i < questions.length - 1; i++) {
                 // Send the a question to the user
-                await client.replyMessage(event.replyToken, {
-                  type: 'text',
-                  text: questions[i],
-                });
+                await client.replyMessage(event.replyToken, [
+                  {
+                    type: 'text',
+                    text: questions[i],
+                  },{
+                    type: 'text',
+                    text: JSON.stringify(talkingUsers),
+                  },
+                ]);
 
                 // Wait for the user's response
                 const response = await waitForUserResponse(event.source.userId);
@@ -93,12 +98,12 @@ export default async function handler(req, res) {
                   ]);
                 }
               }
+              const index = talkingUsers.indexOf(event.source.userId);
+              if (index > -1) {
+                talkingUsers.splice(index, 1);
+              }
           }
 
-          const index = talkingUsers.indexOf(event.source.userId);
-          if (index > -1) {
-            talkingUsers.splice(index, 1);
-          }
         }
       }
 
