@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@line/bot-sdk": "^7.5.2",
     "@line/liff": "2.21.4",
     "@prisma/client": "^4.11.0",
     "eslint": "8.36.0",
