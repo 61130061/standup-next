@@ -1,6 +1,6 @@
 import prisma from '../../server/db';
-import { https } from 'https';
 import { decode } from 'jsonwebtoken';
+const https = require('https');
 
 const CHANNEL_ID = '1660773288';
 
