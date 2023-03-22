@@ -2,7 +2,7 @@ import https from 'https';
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 const TOKEN = process.env.LINE_ACCESS_TOKEN
-const LIFF_URL = process.env.LINE_ACCESS_TOKEN 
+const LIFF_URL = process.env.LINE_LIFF_URL 
 
 const lineConfig = {
   channelAccessToken: TOKEN,
