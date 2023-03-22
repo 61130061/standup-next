@@ -34,7 +34,7 @@ const standupMenu = {
   }
 }
 
-const client = new Client(config);
+const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   const middlewareFunc = middleware(lineConfig);
