@@ -67,10 +67,7 @@ export default async function handler(req, res) {
                 {
                   type: 'text',
                   text: questions[0],
-                }, {
-                  type: 'text',
-                  text: JSON.stringify(mockData),
-                },
+                }
               ]);
           }
         }
