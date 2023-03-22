@@ -38,7 +38,7 @@ const client = new Client(lineConfig);
 /* 
 {
   userId: '',
-  questionIndex: 0
+  qIndex: 0
 }
  */
 let mockData = [];
@@ -105,6 +105,16 @@ export default async function handler(req, res) {
               mockData[index].qIndex++;
             } else {
               mockData.splice(index, 1);
+              // Send the first question to the user
+              await client.replyMessage(event.replyToken, [
+                {
+                  type: 'text',
+                  text: 'Thank you for your answer!!',
+                }, {
+                  type: 'text',
+                  text: JSON.stringify(mockData),
+                },
+              ]);
             }
           }
         }
