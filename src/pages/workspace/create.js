@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Head from "next/head";
 
-export default function CreateWorkspace ({ liff, liffError }) {
+export default function CreateWorkspace ({ liff, liffError, idToken }) {
   const [name, setName] = useState('');
   const [time, setTime] = useState(["08:00", "08:30"]);
   const [days, setDays] = useState(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
@@ -19,8 +19,6 @@ export default function CreateWorkspace ({ liff, liffError }) {
     const stop = new Date();
     stop.setHours(time[1].split(":")[0]);
     stop.setMinutes(time[1].split(":")[1]);
-
-    const idToken = liff.getIDToken();
 
     const body = {
       name,
