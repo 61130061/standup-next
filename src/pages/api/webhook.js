@@ -35,7 +35,13 @@ const standupMenu = {
 }
 
 const client = new Client(lineConfig);
-const talkingUsers = [];
+/* 
+{
+  userId: '',
+  questionIndex: 0
+}
+ */
+let mockData = [];
 
 export default async function handler(req, res) {
   const middlewareFunc = middleware(lineConfig);
@@ -52,61 +58,55 @@ export default async function handler(req, res) {
   }
 
   const questions = ['What did you do since yesterday?', 'What will you do today?']
-  const responses = [];
 
   if (req.method === 'POST') {
     try {
       const events = req.body.events;
 
       for (const event of events) {
-        if (event.type === 'message' && event.message.type === 'text' && !talkingUsers.includes(event.source.userId)) {
-          talkingUsers.push(event.source.userId)
+        if (event.type === 'message' && event.message.type === 'text') {
+          const isTalking = mockData.filter(item => item.userId == event.source.userId).length > 0;
 
-          switch (event.message.text) {
-            case 'standup':
-              await client.replyMessage(event.replyToken, standupMenu);
-            default:
-              for (let i = 0; i < questions.length - 1; i++) {
-                // Send the a question to the user
+          if (!isTalking) {
+            switch (event.message.text) {
+              case 'standup':
+                await client.replyMessage(event.replyToken, standupMenu);
+              default:
+                mockData.push({
+                  userId: event.source.userId,
+                  qIndex: 0
+                })
+
+                // Send the first question to the user
                 await client.replyMessage(event.replyToken, [
                   {
                     type: 'text',
-                    text: questions[i],
-                  },{
+                    text: questions[0],
+                  }, {
                     type: 'text',
-                    text: JSON.stringify(talkingUsers),
+                    text: JSON.stringify(mockData),
                   },
                 ]);
+            }
+          } else {
+            const index = mockData.findIndex(item => item.userId == event.source.userId);
 
-                // Wait for the user's response
-                const response = await waitForUserResponse(event.source.userId);
-                console.log('debug response 0 ' + response);
-
-                if (index < questions.length) {
-                  // Collect response and
-                  console.log('debug response')
-                  responses.push(response);
-                } else {
-                  console.log('debug thank you')
-                  // Thank for response
-                  await client.replyMessage(event.replyToken, [
-                    {
-                      type: 'text',
-                      text: 'Thank you for your answer!!',
-                    },
-                    {
-                      type: 'text',
-                      text: JSON.stringify(responses),
-                    },
-                  ]);
-                }
-              }
-              const index = talkingUsers.indexOf(event.source.userId);
-              if (index > -1) {
-                talkingUsers.splice(index, 1);
-              }
+            if (mockData[index].qIndex < questions.length) {
+              // Send the first question to the user
+              await client.replyMessage(event.replyToken, [
+                {
+                  type: 'text',
+                  text: questions[mockData[index].qIndex + 1],
+                }, {
+                  type: 'text',
+                  text: JSON.stringify(mockData),
+                },
+              ]);
+              mockData[index].qIndex++;
+            } else {
+              mockData.splice(index, 1);
+            }
           }
-
         }
       }
 
@@ -119,20 +119,4 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     res.status(405).end('Method Not Allowed');
   }
-}
-
-async function waitForUserResponse(userId) {
-  return new Promise((resolve, reject) => {
-    setInterval(async () => {
-      const messages = await client.getMessageContent(userId);
-      if (messages.length > 0) {
-        const message = messages[messages.length - 1];
-        if (message.type === 'text') {
-          console.log('debug 1');
-          clearInterval(interval);
-          resolve(message.text);
-        }
-      }
-    }, 1000);
-  });
 }
