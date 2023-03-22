@@ -20,9 +20,11 @@ export default function CreateWorkspace ({ liff, liffError }) {
     stop.setHours(time[1].split(":")[0]);
     stop.setMinutes(time[1].split(":")[1]);
 
+    const idToken = liff.getIDToken();
+
     const body = {
       name,
-      idToken: liff.getIDToken(),
+      idToken,
       start,
       stop,
       days,
@@ -38,7 +40,7 @@ export default function CreateWorkspace ({ liff, liffError }) {
     }).then(res => {
       aler(res.json());
     }).catch(err => {
-      console.log(err);
+      aler(err);
     })
   }
 

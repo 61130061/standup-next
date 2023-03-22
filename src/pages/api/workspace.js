@@ -48,6 +48,8 @@ export default async function handler(req, res) {
   if (req.method === 'POST') { // create worksapce
     const { name, idToken, start, stop, days, questions } = req.body;
 
+    console.log(req.body);
+
     const tokenDecode = decode(idToken);
     console.log(tokenDecode);
 
