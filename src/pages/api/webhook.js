@@ -35,13 +35,6 @@ const standupMenu = {
 }
 
 const client = new Client(lineConfig);
-/* 
-{
-  userId: '',
-  qIndex: 0
-}
- */
-let mockData = [];
 
 export default async function handler(req, res) {
   const middlewareFunc = middleware(lineConfig);
@@ -65,57 +58,20 @@ export default async function handler(req, res) {
 
       for (const event of events) {
         if (event.type === 'message' && event.message.type === 'text') {
-          const isTalking = mockData.filter(item => item.userId == event.source.userId).length > 0;
-
-          if (!isTalking) {
-            switch (event.message.text) {
-              case 'standup':
-                await client.replyMessage(event.replyToken, standupMenu);
-              default:
-                mockData.push({
-                  userId: event.source.userId,
-                  qIndex: 0
-                })
-
-                // Send the first question to the user
-                await client.replyMessage(event.replyToken, [
-                  {
-                    type: 'text',
-                    text: questions[0],
-                  }, {
-                    type: 'text',
-                    text: JSON.stringify(mockData),
-                  },
-                ]);
-            }
-          } else {
-            const index = mockData.findIndex(item => item.userId == event.source.userId);
-
-            if (mockData[index].qIndex < questions.length) {
+          switch (event.message.text) {
+            case 'standup':
+              await client.replyMessage(event.replyToken, standupMenu);
+            default:
               // Send the first question to the user
               await client.replyMessage(event.replyToken, [
                 {
                   type: 'text',
-                  text: questions[mockData[index].qIndex + 1],
+                  text: questions[0],
                 }, {
                   type: 'text',
                   text: JSON.stringify(mockData),
                 },
               ]);
-              mockData[index].qIndex++;
-            } else {
-              mockData.splice(index, 1);
-              // Send the first question to the user
-              await client.replyMessage(event.replyToken, [
-                {
-                  type: 'text',
-                  text: 'Thank you for your answer!!',
-                }, {
-                  type: 'text',
-                  text: JSON.stringify(mockData),
-                },
-              ]);
-            }
           }
         }
       }

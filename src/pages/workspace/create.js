@@ -11,13 +11,35 @@ export default function CreateWorkspace ({ liff, liffError }) {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    alert(JSON.stringify({
+
+    const start = new Date();
+    start.setHours(time[0].split(":")[0]);
+    start.setMinutes(time[0].split(":")[1]);
+
+    const stop = new Date();
+    stop.setHours(time[1].split(":")[0]);
+    stop.setMinutes(time[1].split(":")[1]);
+
+    const body = {
       name,
-      time,
+      idToken: liff.getIDToken(),
+      start,
+      stop,
       days,
       questions
-    }));
-    // TODO send api to server to create database
+    }
+
+    fetch('/api/workspace', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    }).then(res => {
+      aler(res.json());
+    }).catch(err => {
+      console.log(err);
+    })
   }
 
   const onTimeUpdate = (e) => {

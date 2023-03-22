@@ -30,7 +30,9 @@ export default function Home({ liff, liffError }) {
           )}
           <p>on {liff.isInClient() ? 'LIFF app browser' : 'external browser'}</p>
         </div>
-        <button className="my-3 bg-blue-500 px-3 py-1 rounded text-white">Login</button>
+        {!liff.isLoggedIn() &&
+          <button onClick={() => liff.login()} className="my-3 bg-blue-500 px-3 py-1 rounded text-white">Login</button>
+        }
       </main>
     </div>
   );
