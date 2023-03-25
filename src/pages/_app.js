@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 
 function MyApp({ Component, pageProps }) {
   const [liffObject, setLiffObject] = useState(null);
-  const [idToken, setIdToken] = useState(null);
   const [liffError, setLiffError] = useState(null);
+  const [idToken, setIdToken] = useState(null);
 
   // Execute liff.init() when the app is initialized
   useEffect(() => {
@@ -15,9 +15,10 @@ function MyApp({ Component, pageProps }) {
         .init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID })
         .then(() => {
           console.log("LIFF init succeeded.");
+
           const token = liff.getIDToken();
-          console.log(token);
           setIdToken(token);
+
           setLiffObject(liff);
         })
         .catch((error) => {

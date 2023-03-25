@@ -1,6 +1,9 @@
+import React, { useState } from 'react';
 import Head from "next/head";
+import { useRouter } from 'next/router'
 
 export default function Home({ liff, liffError }) {
+  const router = useRouter()
 
   if (!liff) {
     return (
@@ -33,6 +36,7 @@ export default function Home({ liff, liffError }) {
         {!liff.isLoggedIn() &&
           <button onClick={() => liff.login()} className="my-3 bg-blue-500 px-3 py-1 rounded text-white">Login</button>
         }
+        <button onClick={() => router.push('/workspace')} className="my-3 ml-5 bg-blue-500 px-3 py-1 rounded text-white">Workspace</button>
       </main>
     </div>
   );

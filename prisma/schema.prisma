@@ -38,6 +38,7 @@ model Question {
   id              String      @id @default(uuid())
   name            String
   index           Int
+  required        Boolean     @default(true)
 
   Workspace       Workspace   @relation(fields: [workspaceId], references: [id])
   workspaceId     String

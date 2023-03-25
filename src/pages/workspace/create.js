@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import Head from "next/head";
+import Link from 'next/link'
 
 export default function CreateWorkspace ({ liff, liffError, idToken }) {
   const [name, setName] = useState('');
   const [time, setTime] = useState(["08:00", "08:30"]);
   const [days, setDays] = useState(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
   const [questions, setQuestions] = useState(["What did you do since yesterday?", "What will you do today?"]);
+  const [debug, setDebug] = useState(null);
+  const [modal, setModal] = useState(false);
 
   const dayStr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -20,9 +23,14 @@ export default function CreateWorkspace ({ liff, liffError, idToken }) {
     stop.setHours(time[1].split(":")[0]);
     stop.setMinutes(time[1].split(":")[1]);
 
+    let token;
+    if (!liff.isInClient()) token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY2Vzcy5saW5lLm1lIiwic3ViIjoiVTEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3ODkwYWJjZGVmICIsImF1ZCI6IjEyMzQ1Njc4OTAiLCJleHAiOjE1MDQxNjkwOTIsImlhdCI6MTUwNDI2MzY1Nywibm9uY2UiOiIwOTg3NjU0YXNkZiIsImFtciI6WyJwd2QiXSwibmFtZSI6IlRhcm8gTGluZSIsInBpY3R1cmUiOiJodHRwczovL3NhbXBsZV9saW5lLm1lL2FCY2RlZmcxMjM0NTYifQ.ZWq-gAvJoxdt9BU9xIcaLP5ZzyDjqO9mMTkKmVraRLo';
+    else token = idToken;
+
+
     const body = {
       name,
-      idToken,
+      idToken: token,
       start,
       stop,
       days,
@@ -36,9 +44,13 @@ export default function CreateWorkspace ({ liff, liffError, idToken }) {
       },
       body: JSON.stringify(body)
     }).then(res => {
-      aler(res.json());
+      if (res.ok) {
+        setModal(true);
+      } else {
+        setDebug('Request not completed')
+      }
     }).catch(err => {
-      aler(err);
+      console.log(err);
     })
   }
 
@@ -94,7 +106,27 @@ export default function CreateWorkspace ({ liff, liffError, idToken }) {
       </Head>
 
       <main className="max-w-2xl p-3 mx-auto">
-        <h1 className="my-5 text-center text-5xl font-bold text-indigo-500">Standup LIFF</h1>
+        {modal &&
+          <div className="fixed top-0 left-0 z-50 w-full h-full overflow-hidden">
+            <div className="relative h-full flex items-center justify-center bg-black bg-opacity-70">
+              <div className="bg-white flex flex-col items-center max-w-lg gap-5 shadow-lg rounded-lg p-5">
+                <div>
+                  <svg className="text-green-400" width="100px" height="100px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.5609 10.7386L20.2009 9.15859C19.9409 8.85859 19.7309 8.29859 19.7309 7.89859V6.19859C19.7309 5.13859 18.8609 4.26859 17.8009 4.26859H16.1009C15.7109 4.26859 15.1409 4.05859 14.8409 3.79859L13.2609 2.43859C12.5709 1.84859 11.4409 1.84859 10.7409 2.43859L9.17086 3.80859C8.87086 4.05859 8.30086 4.26859 7.91086 4.26859H6.18086C5.12086 4.26859 4.25086 5.13859 4.25086 6.19859V7.90859C4.25086 8.29859 4.04086 8.85859 3.79086 9.15859L2.44086 10.7486C1.86086 11.4386 1.86086 12.5586 2.44086 13.2486L3.79086 14.8386C4.04086 15.1386 4.25086 15.6986 4.25086 16.0886V17.7986C4.25086 18.8586 5.12086 19.7286 6.18086 19.7286H7.91086C8.30086 19.7286 8.87086 19.9386 9.17086 20.1986L10.7509 21.5586C11.4409 22.1486 12.5709 22.1486 13.2709 21.5586L14.8509 20.1986C15.1509 19.9386 15.7109 19.7286 16.1109 19.7286H17.8109C18.8709 19.7286 19.7409 18.8586 19.7409 17.7986V16.0986C19.7409 15.7086 19.9509 15.1386 20.2109 14.8386L21.5709 13.2586C22.1509 12.5686 22.1509 11.4286 21.5609 10.7386ZM16.1609 10.1086L11.3309 14.9386C11.1909 15.0786 11.0009 15.1586 10.8009 15.1586C10.6009 15.1586 10.4109 15.0786 10.2709 14.9386L7.85086 12.5186C7.56086 12.2286 7.56086 11.7486 7.85086 11.4586C8.14086 11.1686 8.62086 11.1686 8.91086 11.4586L10.8009 13.3486L15.1009 9.04859C15.3909 8.75859 15.8709 8.75859 16.1609 9.04859C16.4509 9.33859 16.4509 9.81859 16.1609 10.1086Z" fill="currentColor" />
+                  </svg>
+                </div>
+                <div className="text-center mx-5">Workspace is successfully created! Check your workspace frome standup line chat.</div>
+                <Link href="/workspace">
+                  <button className="px-3 py-2 text-white rounded-lg bg-indigo-500">back to workspace</button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        }
+
+        <Link href="/">
+          <h1 className="my-5 text-center text-5xl font-bold text-indigo-500">Standup LIFF</h1>
+        </Link>
         <h2 className="my-2 text-2xl font-bold">Create workspace</h2>
         <p className="text-sm font-light text-gray-600">Please enter all field below and remember that you can change this information any time after created a workspace.</p>
         <form onSubmit={onSubmit} id="create-workspace-form" className="flex flex-col gap-4 my-3">
@@ -146,6 +178,9 @@ export default function CreateWorkspace ({ liff, liffError, idToken }) {
         </form>
         <button className="px-3 py-2 my-3 bg-indigo-500 rounded-lg text-white mr-5" form="create-workspace-form" type="submit">Create</button>
         <button className="px-3 py-2 my-3 rounded-lg mr-5">Cancel</button>
+        <div>
+          Debug: {debug && debug}
+        </div>
       </main>
     </div>
   )
