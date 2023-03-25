@@ -58,7 +58,7 @@ export default function Workspace ({ liff, liffError, idToken, devToken }) {
           {workspaces.length == 0 ?
             <div className="text-center my-5">no workspaces found</div> :
             workspaces.map((d, i) =>
-              <Link href={"/workspace/"+d.id} key={i}>
+              <Link href={"/workspace/join/"+d.id} key={i}>
                 <div className="border rounded-lg p-3 my-3">
                   <div className="flex justify-between items-start">
                     <h3 className="text-lg mb-2 font-semibold">{d.name}</h3>

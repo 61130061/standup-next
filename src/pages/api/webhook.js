@@ -1,13 +1,6 @@
-import https from 'https';
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
-const TOKEN = process.env.LINE_ACCESS_TOKEN
-const LIFF_URL = process.env.LINE_LIFF_URL 
-
-const lineConfig = {
-  channelAccessToken: TOKEN,
-  channelSecret: process.env.LINE_SECRET
-}
+import { lineConfig, LIFF_URL } from '../../server/line.config';
 
 const standupMenu = {
   "type": "text",
@@ -26,8 +19,8 @@ const standupMenu = {
         "type": "action",
         "action": {
           "type": "uri",
-          "label": "Edit workspace",
-          "uri": LIFF_URL + "/workspace/setting"
+          "label": "Join workspace",
+          "uri": LIFF_URL + "/workspace/join/3a10cc2f-45e0-4e7a-8bd9-d848621f7e5a"
         }
       }
     ]

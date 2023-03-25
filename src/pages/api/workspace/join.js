@@ -1,5 +1,10 @@
-import prisma from '../../../server/db';
+import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 import { decode } from 'jsonwebtoken';
+
+import prisma from '../../../server/db';
+import { lineConfig } from '../../../server/line.config';
+
+const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   try {
@@ -7,11 +12,16 @@ export default async function handler(req, res) {
       const { workspaceId, idToken } = req.body;
 
       if (!idToken || !workspaceId) {
-        res.status(401).json({ error: "MISSING_INPUT" });
+        res.status(401).json({ success: false, error: "MISSING_INPUT" });
         return
       }
-
       const userData = decode(idToken);
+      const userProfile = await client.getProfile(userData.sub);
+
+      if (!userProfile.isFriend) {
+        res.status(401).send("NOT_FRIEND");
+        return
+      }
 
       const workspace = await prisma.workspace.findUnique({
         where: { id: workspaceId },
@@ -37,23 +47,28 @@ export default async function handler(req, res) {
       if (!user) {
         user = await prisma.user.create({
           data: {
+            id: userData.sub,
+            workspaces: {
+              connect: {
+                id: workspaceId
+              }
+            }
+          }
+        });
+      } else {
+        user = await prisma.user.update({
+          where: {
             id: userData.sub
+          },
+          data: {
+            workspaces: {
+              connect: { id: workspaceId }
+            }
           }
         });
       }
 
-      const updatedWorkspace = await prisma.workspace.update({
-        where: {
-          id: workspaceId
-        },
-        data: {
-          members: {
-            connect: { id: userData.sub }
-          }
-        }
-      })
-
-      res.status(200).json({ data: updatedWorkspace });
+      res.status(200).json({ success: true, data: user });
     } else if (req.method === 'DELETE') { // Leave workspace
       const { workspaceId, idToken } = req.body;
 
