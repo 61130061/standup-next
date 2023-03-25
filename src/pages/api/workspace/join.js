@@ -19,6 +19,7 @@ export default async function handler(req, res) {
       const userProfile = await client.getProfile(userData.sub);
 
       if (!userProfile.isFriend) {
+        console.log(userProfile)
         res.status(401).send("NOT_FRIEND");
         return
       }
@@ -29,11 +30,13 @@ export default async function handler(req, res) {
       });
 
       if (!workspace) {
+        console.log("NOT_FRIEND")
         res.status(401).json({ error: "WORKSPACE_NOT_FOUND" });
         return
       }
 
       if (workspace.members.length > 0) {
+        console.log("NOT_FRIEND")
         res.status(401).json({ error: "ALREADY_MEMBER" });
         return
       }
