@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Head from "next/head";
 import Link from 'next/link'
 
-export default function Workspace ({ liff, liffError, idToken }) {
+export default function Workspace ({ liff, liffError, idToken, devToken }) {
   const [workspaces, setWorkspaces] = useState([]);
 
   useEffect(() => {
     if (liff) {
       let token;
-      if (!liff.isInClient()) token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY2Vzcy5saW5lLm1lIiwic3ViIjoiVTEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3ODkwYWJjZGVmICIsImF1ZCI6IjEyMzQ1Njc4OTAiLCJleHAiOjE1MDQxNjkwOTIsImlhdCI6MTUwNDI2MzY1Nywibm9uY2UiOiIwOTg3NjU0YXNkZiIsImFtciI6WyJwd2QiXSwibmFtZSI6IlRhcm8gTGluZSIsInBpY3R1cmUiOiJodHRwczovL3NhbXBsZV9saW5lLm1lL2FCY2RlZmcxMjM0NTYifQ.ZWq-gAvJoxdt9BU9xIcaLP5ZzyDjqO9mMTkKmVraRLo';
+      if (!liff.isInClient()) token = devToken;
       else token = idToken;
 
       fetch('/api/workspace?' + new URLSearchParams({ userToken: token }))
@@ -19,6 +19,15 @@ export default function Workspace ({ liff, liffError, idToken }) {
         })
     }
   }, [liff]);
+
+  function getStrHnM(timeString) {
+    const date = new Date(timeString);
+
+    const h = date.getHours();
+    const m = date.getMinutes();
+
+    return [h.toString().padStart(2, '0'), m.toString().padStart(2, '0')];
+  }
 
   if (!liff) {
     return (
@@ -49,16 +58,21 @@ export default function Workspace ({ liff, liffError, idToken }) {
           {workspaces.length == 0 ?
             <div className="text-center my-5">no workspaces found</div> :
             workspaces.map((d, i) =>
-              <div key={i} className="border rounded-lg p-3 my-3">
-                <h3 className="text-lg mb-2 font-semibold">{d.name}</h3>
-                <div className="flex justify-between items-end">
-                  <div>
-                    status:
-                    <span className={d.running ? "text-green-500" : "text-red-500"}> {d.runnging ? "active" : "not active"}</span>
+              <Link href={"/workspace/"+d.id} key={i}>
+                <div className="border rounded-lg p-3 my-3">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg mb-2 font-semibold">{d.name}</h3>
+                    
                   </div>
-                  <div>start: 08:00, end: 09:00</div>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      status:
+                      <span className={d.running ? "text-green-500" : "text-red-500"}> {d.runnging ? "active" : "not active"}</span>
+                    </div>
+                    <div>start: {getStrHnM(d.start)[0]}:{getStrHnM(d.start)[1]}, end: {getStrHnM(d.stop)[0]}:{getStrHnM(d.stop)[1]}</div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             )}
         </div>
       </main>

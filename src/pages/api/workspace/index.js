@@ -1,6 +1,5 @@
-import prisma from '../../server/db';
+import prisma from '../../../server/db';
 import { decode } from 'jsonwebtoken';
-const https = require('https');
 
 export default async function handler(req, res) {
   try {
@@ -8,7 +7,7 @@ export default async function handler(req, res) {
       const { name, idToken, start, stop, days, questions } = req.body;
 
       if (!name || !idToken || !start || !stop || !days || !questions) {
-        res.status(401).json({ error: "missing input" });
+        res.status(401).json({ error: "MISSING_INPUT" });
         return
       }
 
@@ -47,7 +46,7 @@ export default async function handler(req, res) {
       })
 
       res.status(200).send('Delete Success!');
-    } else {
+    } else { // GET Method
       const { userToken } = req.query;
 
       const idToken = decode(userToken);
@@ -73,6 +72,6 @@ export default async function handler(req, res) {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).send('server error');
+    res.status(500).send('SERVER_ERROR');
   }
 }
