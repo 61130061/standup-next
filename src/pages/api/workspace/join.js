@@ -1,10 +1,6 @@
-import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 import { decode } from 'jsonwebtoken';
 
 import prisma from '../../../server/db';
-import { lineConfig } from '../../../server/line.config';
-
-const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   try {
@@ -16,13 +12,10 @@ export default async function handler(req, res) {
         return
       }
       const userData = decode(idToken);
-      const userProfile = await client.getProfile(userData.sub);
 
-      if (!userProfile.isFriend) {
-        console.log(userProfile)
-        res.status(401).send("NOT_FRIEND");
-        return
-      }
+      /*
+        TODO: add user isFriend detector using client.getProfile(userId)
+      */
 
       const workspace = await prisma.workspace.findUnique({
         where: { id: workspaceId },

@@ -33,10 +33,7 @@ export default function Join ({ liff, liffError, idToken, devToken }) {
             setLoading(false);
           } else {
             console.log(res.error);
-            if (res.error == "NOT_FRIEND") {
-              // tell them you add line account
-              setDebug("You have not add Standup as you friend! Please add Standup first and then come back again.");
-            } else if (res.error == "ALREADY_MEMBER") {
+            if (res.error == "ALREADY_MEMBER") {
               setDebug("You already member of this workspace. Stay tune for your standup!");
             } else {
               // something wrong
