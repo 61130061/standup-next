@@ -1,7 +1,7 @@
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
+import { PrismaClient } from '@prisma/client'
 
 import { lineConfig, LIFF_URL } from '../../server/line.config';
-import prisma from '../../server/db';
 
 const standupMenu = (roomId) => {
   return {
@@ -32,6 +32,7 @@ const standupMenu = (roomId) => {
 }
 
 const client = new Client(lineConfig);
+const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
   const middlewareFunc = middleware(lineConfig);
