@@ -31,9 +31,8 @@ export default async function handler(req, res) {
 
       await middleware(req, res, async () => {
         const members = workspace.members.map(d => d.id);
-        console.log('sending... ', members)
 
-        await client.multicast(members, {
+        await client.pushMessage(members[0], {
           type: 'text',
           text: "Let's standup yall!",
         });
