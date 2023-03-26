@@ -75,7 +75,7 @@ export default async function handler(req, res) {
               console.log(sourceId);
 
               // TODO: Check if this is a good idea?
-              let room = await prisma.chatroom.upsert({
+              let room = await prisma.chatroom.findMany({
                 where: {
                   roomId: sourceId
                 }
