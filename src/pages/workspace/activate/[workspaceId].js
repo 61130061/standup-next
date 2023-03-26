@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Head from "next/head";
 import Link from 'next/link'
 
-export default function Join ({ liff, liffError, idToken, devToken }) {
+export default function ActivateWorkspace ({ liff, liffError, idToken, devToken }) {
   const [loading, setLoading] = useState(true);
   const [debug, setDebug] = useState('Loading...');
 
@@ -21,7 +21,7 @@ export default function Join ({ liff, liffError, idToken, devToken }) {
         workspaceId
       }
 
-      fetch('/api/workspace/join', {
+      fetch('/api/workspace/activate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,12 +33,7 @@ export default function Join ({ liff, liffError, idToken, devToken }) {
             setLoading(false);
           } else {
             console.log(res.error);
-            if (res.error == "ALREADY_MEMBER") {
-              setDebug("You already member of this workspace. Stay tune for your standup!");
-            } else {
-              // something wrong
-              setDebug("Something wrong! Please try again later.");
-            }
+            setDebug("Something wrong! Please try again later.");
           }
         }).catch(err => {
           console.log(err);
@@ -63,7 +58,7 @@ export default function Join ({ liff, liffError, idToken, devToken }) {
           }
         </main>:
         <main className="max-w-2xl p-3 mx-auto flex flex-col gap-5 items-center justify-center h-screen">
-          <div>Join workspace completed!</div>
+          <div>Activate workspace completed!</div>
           <button onClick={() => liff.closeWindow()} className="px-3 py-2 rounded-lg bg-indigo-500 text-white">Close window</button>
         </main>
       }

@@ -29,6 +29,25 @@ const standupMenu = (roomId) => {
   }
 }
 
+const headerMenu = (workspaces) => {
+  const items = workspaces.map((d) => {
+    return {
+      "type": "action",
+      "action": {
+        "type": "uri",
+        "label": d.name,
+        "uri": LIFF_URL + "/workspace/activate/" + d.id
+      }
+    }
+  })
+
+  return {
+    "type": "text",
+    "text": "I'm here! What would you like me todo?",
+    "quickReply": { items }
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
@@ -39,7 +58,11 @@ export default async function handler(req, res) {
           if (event.source.type === 'user') { // individual chat
             switch (event.message.text) {
               case 'standup':
-                await client.replyMessage(event.replyToken, standupMenu);
+                const workspaces = await prisma.workspace.findMany({
+                  where: { userId: event.source.userId }
+                })
+
+                await client.replyMessage(event.replyToken, headerMenu);
               default:
                 await client.replyMessage(event.replyToken, [
                   {
