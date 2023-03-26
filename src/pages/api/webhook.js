@@ -1,8 +1,9 @@
-import { sign } from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 import { lineConfig, LIFF_URL } from '../../server/line.config';
-import prisma from '../../server/db';
+
+const prisma = new PrismaClient();
 
 const standupMenu = (roomId) => {
   return {
@@ -72,8 +73,6 @@ export default async function handler(req, res) {
               if (event.source.groupId) sourceId = event.source.groupId
               else sourceId = event.source.roomId
 
-              console.log(sourceId);
-
               // TODO: Check if this is a good idea?
               const room = await prisma.chatroom.upsert({
                 where: {
@@ -83,8 +82,6 @@ export default async function handler(req, res) {
                   roomId: sourceId,
                 },
               });
-
-              console.log(room);
 
               await client.replyMessage(event.replyToken, standupMenu(room.id));
             } 
