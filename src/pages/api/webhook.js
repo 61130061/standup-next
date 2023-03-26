@@ -62,7 +62,7 @@ export default async function handler(req, res) {
                   where: { userId: event.source.userId }
                 })
 
-                await client.replyMessage(event.replyToken, headerMenu);
+                await client.replyMessage(event.replyToken, headerMenu(workspaces));
               default:
                 await client.replyMessage(event.replyToken, [
                   {
