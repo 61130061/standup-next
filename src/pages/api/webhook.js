@@ -72,7 +72,7 @@ export default async function handler(req, res) {
               else sourceId = event.source.roomId
 
               // TODO: Check if this is a good idea?
-              const room = await prisma.chatroom.upsert({
+              const room = await prisma.room.upsert({
                 where: {
                   roomId: sourceId
                 },
