@@ -135,7 +135,11 @@ export default async function handler(req, res) {
 
       try {
         await middlewareFunc(req, res, async () => {
-          await client.pushMessage(newWorkspace.roomId, inviteFlex(newWorkspace));
+          await client.pushMessage(newWorkspace.roomId, {
+            "type": "flex",
+            "altText": "invite to workspace flex message",
+            "contents": inviteFlex(newWorkspace)
+          });
         });
       } catch (err) {
         if (err instanceof JSONParseError) {

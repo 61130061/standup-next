@@ -33,20 +33,9 @@ const standupMenu = (roomId) => {
 
 const client = new Client(lineConfig);
 
+const middlewareFunc = middleware(lineConfig);
+
 export default async function handler(req, res) {
-  const middlewareFunc = middleware(lineConfig);
-
-  try {
-    await middlewareFunc(req, res, () => {});
-  } catch (err) {
-    if (err instanceof JSONParseError) {
-      console.error('Error: Invalid JSON', err);
-      return res.status(400).send('Bad Request');
-    }
-    console.error(err);
-    return res.status(500).send('Internal Server Error');
-  }
-
   if (req.method === 'POST') {
     try {
       const events = req.body.events;
@@ -56,14 +45,18 @@ export default async function handler(req, res) {
           if (event.source.type === 'user') { // individual chat
             switch (event.message.text) {
               case 'standup':
-                await client.replyMessage(event.replyToken, standupMenu);
+                await middlewareFunc(req, res, async () => {
+                  await client.replyMessage(event.replyToken, standupMenu);
+                });
               default:
-                await client.replyMessage(event.replyToken, [
-                  {
-                    type: 'text',
-                    text: "Hello! Let's standup for a bit.",
-                  }
-                ]);
+                await middlewareFunc(req, res, async () => {
+                  await client.replyMessage(event.replyToken, [
+                    {
+                      type: 'text',
+                      text: "Hello! Let's standup for a bit.",
+                    }
+                  ]);
+                });
             }
           } else { // group/multi-person chat
             if (event.message.text.toLowerCase() === 'standup') {
@@ -84,7 +77,9 @@ export default async function handler(req, res) {
                 }
               });
 
-              await client.replyMessage(event.replyToken, standupMenu(room.id));
+              await middlewareFunc(req, res, async () => {
+                await client.replyMessage(event.replyToken, standupMenu(room.id));
+              });
             } 
           }
         }
