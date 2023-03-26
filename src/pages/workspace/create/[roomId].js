@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import Head from "next/head";
 import Link from 'next/link'
 
@@ -10,6 +11,9 @@ export default function CreateWorkspace ({ liff, liffError, idToken, devToken })
   const [debug, setDebug] = useState(null);
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  // TODO: Should I check if roomId is valide? 
+  const router = useRouter();
+  const { roomId } = router.query;
 
   const dayStr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -31,6 +35,7 @@ export default function CreateWorkspace ({ liff, liffError, idToken, devToken })
 
     const body = {
       name,
+      roomId,
       idToken: token,
       start,
       stop,

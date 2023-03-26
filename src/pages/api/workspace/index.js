@@ -6,10 +6,19 @@ import { createSchedule, deSchedule } from '../../../server/schedule';
 export default async function handler(req, res) {
   try {
     if (req.method === 'POST') { // create worksapce
-      const { name, idToken, start, stop, days, questions } = req.body;
+      const { name, roomId, idToken, start, stop, days, questions } = req.body;
 
-      if (!name || !idToken || !start || !stop || !days || !questions) {
+      if (!name || !idToken || !start || !stop || !days || !questions || !roomId) {
         res.status(401).json({ error: "MISSING_INPUT" });
+        return
+      }
+
+      const room = await prisma.chatroom.findUnique({
+        where: { id: roomId }
+      })
+
+      if (!room) {
+        res.status(401).json({ error: "CHATROOM_NOT_FOUND" });
         return
       }
 
@@ -26,6 +35,9 @@ export default async function handler(req, res) {
         data: {
           name,
           userId: decodedToken.sub,
+          Chatroom: {
+            connect: { id: room.id }
+          },
           start,
           stop,
           days,

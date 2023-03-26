@@ -1,29 +1,34 @@
+import { sign } from 'jsonwebtoken';
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 import { lineConfig, LIFF_URL } from '../../server/line.config';
+import prisma from '../../server/db';
 
-const standupMenu = {
-  "type": "text",
-  "text": "I'm here! What would you like me todo?",
-  "quickReply": {
-    "items": [
-      {
-        "type": "action",
-        "action": {
-          "type": "uri",
-          "label": "Create workspace",
-          "uri": LIFF_URL + "/workspace/create"
+const standupMenu = (roomId) => {
+  return {
+    "type": "text",
+    "text": "I'm here! What would you like me todo?",
+    "quickReply": {
+      "items": [
+        {
+          "type": "action",
+          "action": {
+            "type": "uri",
+            "label": "Workspace",
+            "uri": LIFF_URL + "/workspace"
+          }
+        },
+        {
+          "type": "action",
+          "action": {
+            "type": "uri",
+            "label": "Create workspace",
+            "uri": LIFF_URL + "/workspace/create/" + roomId
+          }
         }
-      },
-      {
-        "type": "action",
-        "action": {
-          "type": "uri",
-          "label": "Join workspace",
-          "uri": LIFF_URL + "/workspace/join/3a10cc2f-45e0-4e7a-8bd9-d848621f7e5a"
-        }
-      }
-    ]
+
+      ]
+    }
   }
 }
 
@@ -43,25 +48,45 @@ export default async function handler(req, res) {
     return res.status(500).send('Internal Server Error');
   }
 
-  const questions = ['What did you do since yesterday?', 'What will you do today?']
-
   if (req.method === 'POST') {
     try {
       const events = req.body.events;
 
       for (const event of events) {
         if (event.type === 'message' && event.message.type === 'text') {
-          switch (event.message.text) {
-            case 'standup':
-              await client.replyMessage(event.replyToken, standupMenu);
-            default:
-              // Send the first question to the user
-              await client.replyMessage(event.replyToken, [
-                {
-                  type: 'text',
-                  text: questions[0],
+          if (event.source.type === 'user') { // individual chat
+            switch (event.message.text) {
+              case 'standup':
+                await client.replyMessage(event.replyToken, standupMenu);
+              default:
+                await client.replyMessage(event.replyToken, [
+                  {
+                    type: 'text',
+                    text: "Hello! Let's standup for a bit.",
+                  }
+                ]);
+            }
+          } else { // group/multi-person chat
+            if (event.message.text.toLowerCase() === 'standup') {
+              let sourceId;
+              if (event.source.groupId) sourceId = event.source.groupId
+              else sourceId = event.source.roomId
+
+              // TODO: Check if this is a good idea?
+              let room = await prisma.chatroom.findFirst({
+                where: {
+                  roomId: sourceId
                 }
-              ]);
+              });
+
+              if (!room) {
+                room = await prisma.chatroom.create({
+                  data: { roomId: sourceId }
+                })
+              }
+
+              await client.replyMessage(event.replyToken, standupMenu(room.id));
+            } 
           }
         }
       }

@@ -18,9 +18,18 @@ model User {
   responses     Response[]
 }
 
+model Chatroom {
+  id          String         @id @default(uuid())
+  roomId      String         @unique
+
+  workspaces    Workspace[]
+}
+
 model Workspace {
   id          String         @id @default(uuid())
   userId      String
+  Chatroom    Chatroom       @relation(fields: [roomId], references: [roomId])
+  roomId      String
   name        String         @db.TinyText
   running     Boolean        @default(true)
   createdAt   DateTime       @default(now())
