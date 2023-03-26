@@ -1,11 +1,14 @@
 import { decode } from 'jsonwebtoken';
-import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 import prisma from '../../../server/db';
-import { createSchedule, deSchedule } from '../../../server/schedule';
-import { lineConfig, LIFF_URL } from '../../../server/line.config';
+import { LIFF_URL, client, middleware } from '../../../server/line';
 
 const inviteFlex = (workspace) => {
+  const hours = workspace.start.getHours();
+  const minutes = workspace.start.getMinutes();
+
+  const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
   return {
     "type": "bubble",
     "body": {
@@ -38,7 +41,7 @@ const inviteFlex = (workspace) => {
         },
         {
           "type": "text",
-          "text": "Start at time: " + workspace.start.toString(),
+          "text": "Start at time: " + timeString,
           "margin": "lg"
         },
         {
@@ -75,8 +78,6 @@ const inviteFlex = (workspace) => {
     }
   }
 }
-
-const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   try {
@@ -122,33 +123,13 @@ export default async function handler(req, res) {
         }
       })
 
-      if (newWorkspace.running) {
-        const lowercaseDays = newWorkspace.days.map(day => day.toLowerCase());
-        const cronStr = `${newWorkspace.start.getMinutes()} ${newWorkspace.start.getHours()} * * ${lowercaseDays.join(',')}`;
-
-        createSchedule(newWorkspace, cronStr);
-      } else {
-        deSchedule(newWorkspace);
-      }
-
-      const middlewareFunc = middleware(lineConfig);
-
-      try {
-        await middlewareFunc(req, res, async () => {
-          await client.pushMessage(newWorkspace.roomId, {
-            "type": "flex",
-            "altText": "invite to workspace flex message",
-            "contents": inviteFlex(newWorkspace)
-          });
+      await middleware(req, res, async () => {
+        await client.pushMessage(newWorkspace.roomId, {
+          "type": "flex",
+          "altText": "invite to workspace flex message",
+          "contents": inviteFlex(newWorkspace)
         });
-      } catch (err) {
-        if (err instanceof JSONParseError) {
-          console.error('Error: Invalid JSON', err);
-          return res.status(400).send('Bad Request');
-        }
-        console.error(err);
-        return res.status(500).send('Internal Server Error');
-      }
+      });
 
       res.status(200).send('SUCCESS');
     } else if (req.method === 'PATCH') { // Update workspace
@@ -181,20 +162,6 @@ export default async function handler(req, res) {
         },
         data: content
       });
-
-      /* TODO:
-      - is it better to check time update before create schedule?
-      - right now every time workspace update, schedule will be recreate. (maybe bad for server)
-      */
-      if (newWorkspace.running) { // update from deactivate -> activate
-        deSchedule(newWorkspace);
-        const lowercaseDays = newWorkspace.days.map(day => day.toLowerCase());
-        const cronStr = `${newWorkspace.start.getMinutes()} ${newWorkspace.start.getHours()} * * ${lowercaseDays.join(',')}`;
-
-        createSchedule(newWorkspace, cronStr);
-      } else { // update from activate -> deactivate
-        deSchedule(newWorkspace);
-      }
 
       res.status(200).json({ success: true, data: newWorkspace });
     } else if (req.method === 'DELETE') { // Delete workspace

@@ -1,7 +1,5 @@
-import { Client } from '@line/bot-sdk';
-
-import { lineConfig, LIFF_URL } from '../../server/line.config';
 import prisma from '../../server/db';
+import { client, LIFF_URL } from '../../server/line';
 
 const standupMenu = (roomId) => {
   return {
@@ -30,8 +28,6 @@ const standupMenu = (roomId) => {
     }
   }
 }
-
-const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
