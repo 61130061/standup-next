@@ -72,6 +72,8 @@ export default async function handler(req, res) {
               if (event.source.groupId) sourceId = event.source.groupId
               else sourceId = event.source.roomId
 
+              console.log(sourceId);
+
               // TODO: Check if this is a good idea?
               let room = await prisma.chatroom.findUnique({
                 where: {
