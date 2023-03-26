@@ -75,17 +75,13 @@ export default async function handler(req, res) {
               console.log(sourceId);
 
               // TODO: Check if this is a good idea?
-              let room = await prisma.chatroom.findUnique({
+              let room = await prisma.chatroom.upsert({
                 where: {
                   roomId: sourceId
                 }
               });
 
-              if (!room) {
-                room = await prisma.chatroom.create({
-                  data: { roomId: sourceId }
-                })
-              }
+              console.log(room);
 
               await client.replyMessage(event.replyToken, standupMenu(room.id));
             } 
