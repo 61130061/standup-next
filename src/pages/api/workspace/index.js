@@ -1,7 +1,82 @@
 import { decode } from 'jsonwebtoken';
+import { Client } from '@line/bot-sdk';
 
 import prisma from '../../../server/db';
 import { createSchedule, deSchedule } from '../../../server/schedule';
+import { lineConfig, LIFF_URL } from '../../server/line.config';
+
+const inviteFlex = (workspace) => {
+  return {
+    "type": "bubble",
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "CREATE COMPLETED",
+          "weight": "bold",
+          "color": "#1DB446",
+          "size": "sm"
+        },
+        {
+          "type": "text",
+          "text": workspace.name,
+          "weight": "bold",
+          "size": "xxl",
+          "margin": "md"
+        },
+        {
+          "type": "text",
+          "text": `${workspace.name} is now active, I will start sending DMs to members following setting below.`,
+          "size": "md",
+          "wrap": true
+        },
+        {
+          "type": "separator",
+          "margin": "lg"
+        },
+        {
+          "type": "text",
+          "text": "Start at time: " + workspace.start.toString(),
+          "margin": "lg"
+        },
+        {
+          "type": "separator",
+          "margin": "lg"
+        },
+        {
+          "type": "text",
+          "text": "Click join button below to join as a member of this workspace.",
+          "margin": "lg",
+          "color": "#aaaaaa",
+          "wrap": true,
+          "size": "xs"
+        },
+        {
+          "type": "separator",
+          "margin": "lg"
+        },
+        {
+          "type": "button",
+          "action": {
+            "type": "uri",
+            "label": "Join workspace",
+            "uri": LIFF_URL + '/workspace/join/' + workspace.id
+          },
+          "margin": "lg"
+        }
+      ]
+    },
+    "styles": {
+      "footer": {
+        "separator": true
+      }
+    }
+  }
+}
+
+const client = new Client(lineConfig);
 
 export default async function handler(req, res) {
   try {
@@ -55,6 +130,8 @@ export default async function handler(req, res) {
       } else {
         deSchedule(newWorkspace);
       }
+
+      await client.pushMessage(newWorkspace.roomId, inviteFlex(newWorkspace));
 
       res.status(200).send('SUCCESS');
     } else if (req.method === 'PATCH') { // Update workspace
@@ -111,7 +188,6 @@ export default async function handler(req, res) {
           }
         }
       })
-
 
       res.status(200).send('Delete Success!');
     } else { // GET Method

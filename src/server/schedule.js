@@ -1,6 +1,10 @@
 import cron from 'node-cron';
+import { Client } from '@line/bot-sdk';
+
+import { lineConfig, LIFF_URL } from './line.config';
 
 const scheduledTasks = new Map();
+const client = new Client(lineConfig);
 
 // Create a new cron schedule for the specified workspaceId
 export function createSchedule(workspace, cronStr) {
@@ -11,8 +15,18 @@ export function createSchedule(workspace, cronStr) {
     return
   }
 
-  const task = cron.schedule(cronStr, () => {
+  const task = cron.schedule(cronStr, async () => {
     console.log(`Scheduled task running for workspace ${workspace.name}`);
+
+    const userIds = workspace.members.map(data => data.id);
+    try {
+      await client.multicast(userIds, {
+        type: 'text',
+        text: 'start standup meeting right now!',
+      });
+    } catch (err) {
+      console.log(err);
+    }
   });
   scheduledTasks.set(workspace.id, task);
   console.log(`Created schedule for workspace ${workspace.name}`);
