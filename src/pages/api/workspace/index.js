@@ -3,7 +3,7 @@ import { Client } from '@line/bot-sdk';
 
 import prisma from '../../../server/db';
 import { createSchedule, deSchedule } from '../../../server/schedule';
-import { lineConfig, LIFF_URL } from '../../server/line.config';
+import { lineConfig, LIFF_URL } from '../../../server/line.config';
 
 const inviteFlex = (workspace) => {
   return {
