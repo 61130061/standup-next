@@ -43,7 +43,7 @@ const headerMenu = (workspaces) => {
 
   return {
     "type": "text",
-    "text": "I'm here! What would you like me todo?",
+    "text": "Here is your workspaces! Click to activate now.",
     "quickReply": { items }
   }
 }
