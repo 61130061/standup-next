@@ -1,4 +1,4 @@
-import { Client, middleware, JSONParseError } from '@line/bot-sdk';
+import { Client } from '@line/bot-sdk';
 
 import { lineConfig, LIFF_URL } from '../../server/line.config';
 import prisma from '../../server/db';
@@ -33,8 +33,6 @@ const standupMenu = (roomId) => {
 
 const client = new Client(lineConfig);
 
-const middlewareFunc = middleware(lineConfig);
-
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
@@ -45,18 +43,14 @@ export default async function handler(req, res) {
           if (event.source.type === 'user') { // individual chat
             switch (event.message.text) {
               case 'standup':
-                await middlewareFunc(req, res, async () => {
-                  await client.replyMessage(event.replyToken, standupMenu);
-                });
+                await client.replyMessage(event.replyToken, standupMenu);
               default:
-                await middlewareFunc(req, res, async () => {
-                  await client.replyMessage(event.replyToken, [
-                    {
-                      type: 'text',
-                      text: "Hello! Let's standup for a bit.",
-                    }
-                  ]);
-                });
+                await client.replyMessage(event.replyToken, [
+                  {
+                    type: 'text',
+                    text: "Hello! Let's standup for a bit.",
+                  }
+                ]);
             }
           } else { // group/multi-person chat
             if (event.message.text.toLowerCase() === 'standup') {
@@ -77,9 +71,7 @@ export default async function handler(req, res) {
                 }
               });
 
-              await middlewareFunc(req, res, async () => {
-                await client.replyMessage(event.replyToken, standupMenu(room.id));
-              });
+              await client.replyMessage(event.replyToken, standupMenu(room.id));
             } 
           }
         }
