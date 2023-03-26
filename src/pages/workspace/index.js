@@ -67,7 +67,7 @@ export default function Workspace ({ liff, liffError, idToken, devToken }) {
                   <div className="flex justify-between items-end">
                     <div>
                       status:
-                      <span className={d.running ? "text-green-500" : "text-red-500"}> {d.runnging ? "active" : "not active"}</span>
+                      <span className={d.running ? "text-green-500" : "text-red-500"}> {d.running ? "active" : "not active"}</span>
                     </div>
                     <div>start: {getStrHnM(d.start)[0]}:{getStrHnM(d.start)[1]}, end: {getStrHnM(d.stop)[0]}:{getStrHnM(d.stop)[1]}</div>
                   </div>

@@ -17,6 +17,7 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
     "next": "13.2.4",
+    "node-cron": "^3.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

@@ -1,5 +1,7 @@
-import prisma from '../../../server/db';
 import { decode } from 'jsonwebtoken';
+
+import prisma from '../../../server/db';
+import { createSchedule, deSchedule } from '../../../server/schedule';
 
 export default async function handler(req, res) {
   try {
@@ -33,9 +35,62 @@ export default async function handler(req, res) {
         }
       })
 
-      res.status(200).send('success');
-    } else if (req.method === 'PATCH') {
-      // Update workspace
+      if (newWorkspace.running) {
+        const lowercaseDays = newWorkspace.days.map(day => day.toLowerCase());
+        const cronStr = `${newWorkspace.start.getMinutes()} ${newWorkspace.start.getHours()} * * ${lowercaseDays.join(',')}`;
+
+        createSchedule(newWorkspace, cronStr);
+      } else {
+        deSchedule(newWorkspace);
+      }
+
+      res.status(200).send('SUCCESS');
+    } else if (req.method === 'PATCH') { // Update workspace
+      const { workspaceId, idToken, content } = req.body;
+
+      if (!workspaceId || !idToken || !content) {
+        res.status(401).send("MESSING_INPUT");
+        return 
+      }
+
+      const userData = decode(idToken);
+
+      const workspace = await prisma.workspace.findFirst({
+        where: {
+          AND: [
+            { id: workspaceId },
+            { userId: userData.sub }
+          ]
+        }
+      })
+
+      if (!workspace) {
+        res.status(401).send("WORKSPACE_NOT_FOUND");
+        return
+      }
+
+      const newWorkspace = await prisma.workspace.update({
+        where: {
+          id: workspace.id
+        },
+        data: content
+      });
+
+      /* TODO:
+      - is it better to check time update before create schedule?
+      - right now every time workspace update, schedule will be recreate. (maybe bad for server)
+      */
+      if (newWorkspace.running) { // update from deactivate -> activate
+        deSchedule(newWorkspace);
+        const lowercaseDays = newWorkspace.days.map(day => day.toLowerCase());
+        const cronStr = `${newWorkspace.start.getMinutes()} ${newWorkspace.start.getHours()} * * ${lowercaseDays.join(',')}`;
+
+        createSchedule(newWorkspace, cronStr);
+      } else { // update from activate -> deactivate
+        deSchedule(newWorkspace);
+      }
+
+      res.status(200).json({ success: true, data: newWorkspace });
     } else if (req.method === 'DELETE') { // Delete workspace
       const deleteWorkspace = await prisma.workspace.deleteMany({
         where: {
@@ -44,6 +99,7 @@ export default async function handler(req, res) {
           }
         }
       })
+
 
       res.status(200).send('Delete Success!');
     } else { // GET Method
