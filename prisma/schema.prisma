@@ -18,7 +18,7 @@ model User {
   responses     Response[]
 }
 
-model Room {
+model Chatroom {
   id          String         @id @default(uuid())
   roomId      String         @unique
 
@@ -28,7 +28,7 @@ model Room {
 model Workspace {
   id          String         @id @default(uuid())
   userId      String
-  Chatroom    Room           @relation(fields: [roomId], references: [roomId])
+  Chatroom    Chatroom       @relation(fields: [roomId], references: [roomId])
   roomId      String
   name        String         @db.TinyText
   running     Boolean        @default(true)
