@@ -1,5 +1,5 @@
 import { decode } from 'jsonwebtoken';
-import { Client } from '@line/bot-sdk';
+import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 import prisma from '../../../server/db';
 import { createSchedule, deSchedule } from '../../../server/schedule';
@@ -131,7 +131,20 @@ export default async function handler(req, res) {
         deSchedule(newWorkspace);
       }
 
-      await client.pushMessage(newWorkspace.roomId, inviteFlex(newWorkspace));
+      const middlewareFunc = middleware(lineConfig);
+
+      try {
+        await middlewareFunc(req, res, async () => {
+          await client.pushMessage(newWorkspace.roomId, inviteFlex(newWorkspace));
+        });
+      } catch (err) {
+        if (err instanceof JSONParseError) {
+          console.error('Error: Invalid JSON', err);
+          return res.status(400).send('Bad Request');
+        }
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+      }
 
       res.status(200).send('SUCCESS');
     } else if (req.method === 'PATCH') { // Update workspace
