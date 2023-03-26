@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import { Client, middleware, JSONParseError } from '@line/bot-sdk';
 
 import { lineConfig, LIFF_URL } from '../../server/line.config';
-
-const prisma = new PrismaClient();
+import prisma from '../../server/db';
 
 const standupMenu = (roomId) => {
   return {
@@ -74,7 +72,7 @@ export default async function handler(req, res) {
               else sourceId = event.source.roomId
 
               // TODO: Check if this is a good idea?
-              const room = await prisma.chatroom.upsert({
+              const room = await prisma.room.upsert({
                 where: {
                   roomId: sourceId
                 },
