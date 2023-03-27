@@ -52,7 +52,6 @@ export default function CreateWorkspace ({ liff, liffError, idToken, devToken })
     }).then(res => {
       if (res.ok) {
         setLoading(false);
-        liff.closeWindow();
       } else {
         setModal(false);
         setDebug('Request not completed')
@@ -129,9 +128,7 @@ export default function CreateWorkspace ({ liff, liffError, idToken, devToken })
                       </svg>
                     </div>
                     <div className="text-center mx-5">Workspace is successfully created! Check your workspace frome standup line chat.</div>
-                    <Link href="/workspace">
-                      <button className="px-3 py-2 text-white rounded-lg bg-indigo-500">back to workspace</button>
-                    </Link>
+                    <button onClick={() => liff.closeWindow()} className="px-3 py-2 text-white rounded-lg bg-indigo-500">close window</button>
                   </>
                 }
               </div>

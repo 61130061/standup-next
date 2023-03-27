@@ -22,8 +22,15 @@ const standupMenu = (roomId) => {
             "label": "Create workspace",
             "uri": LIFF_URL + "/workspace/create/" + roomId
           }
+        },
+        {
+          "type": "action",
+          "action": {
+            "type": "uri",
+            "label": "Delete workspace",
+            "uri": LIFF_URL + "/workspace/delete"
+          }
         }
-
       ]
     }
   }
@@ -67,9 +74,7 @@ export default async function handler(req, res) {
                       gte: today.setHours(0, 0, 0, 0),
                       lt: today.setHours(23, 59, 59, 999),
                     },
-                    submitAt: {
-                      isNull: true
-                    }
+                    submitAt: null
                   },
                   orderBy: { createdAt: "desc" },
                   take: 1

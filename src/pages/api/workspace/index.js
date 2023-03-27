@@ -165,15 +165,37 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true, data: newWorkspace });
     } else if (req.method === 'DELETE') { // Delete workspace
-      const deleteWorkspace = await prisma.workspace.deleteMany({
-        where: {
-          name: {
-            contains: 'New Workspace'
+      const { idToken, workspaceId } = req.query;
+
+      if (!idToken || !workspaceId) return res.status(401).json({ error: "MISS_INPUT" })
+
+      const userData = decode(idToken);
+
+      const delTransaction = await prisma.$transaction(async (prisma) => {
+        const workspace = await prisma.workspace.findFirst({
+          where: {
+            AND: [{ id: workspaceId }, { userId: userData.sub }]
           }
-        }
+        })
+
+        if (!workspace) throw new Error("UNAUTHORIZED_ACCOUNT")
+
+        await prisma.user.deleteMany({
+          where: { workspaceId: workspace.id }
+        })
+
+        await prisma.question.deleteMany({
+          where: { workspaceId: workspace.id }
+        })
+
+        const delWorkspace = await prisma.workspace.delete({
+          where: { id: workspace.id }
+        })
+
+        return delWorkspace;
       })
 
-      res.status(200).send('Delete Success!');
+      res.status(200).json({ success: true, result: delTransaction });
     } else { // GET Method
       const { userToken } = req.query;
 
