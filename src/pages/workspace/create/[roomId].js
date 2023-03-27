@@ -52,6 +52,7 @@ export default function CreateWorkspace ({ liff, liffError, idToken, devToken })
     }).then(res => {
       if (res.ok) {
         setLoading(false);
+        liff.closeWindow();
       } else {
         setModal(false);
         setDebug('Request not completed')

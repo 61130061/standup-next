@@ -14,13 +14,14 @@ datasource db {
 model User {
   id            String          @id
 
-  workspaces    Workspace[]
+  Workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  workspaceId   String
   responses     Response[]
 }
 
 model Chatroom {
-  id          String         @id @default(uuid())
-  roomId      String         @unique
+  id            String         @id @default(uuid())
+  roomId        String         @unique
 
   workspaces    Workspace[]
 }
@@ -31,8 +32,8 @@ model Workspace {
   Chatroom    Chatroom       @relation(fields: [roomId], references: [roomId])
   roomId      String
   name        String         @db.TinyText
-  running     Boolean        @default(true)
   createdAt   DateTime       @default(now())
+  lastMeeting DateTime?
 
   start       DateTime       @db.Time
   stop        DateTime       @db.Time
@@ -57,6 +58,7 @@ model Response {
   id              String      @id @default(uuid())
   content         Json
   createdAt       DateTime    @default(now())
+  submitAt        DateTime?
 
   User            User        @relation(fields: [userId], references: [id])
   userId          String

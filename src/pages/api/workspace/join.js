@@ -34,35 +34,16 @@ export default async function handler(req, res) {
         return
       }
 
-      let user = await prisma.user.findUnique({
-        where: {
-          id: userData.sub
+      const user = await prisma.user.upsert({
+        where: { id: userData.sub },
+        create: {
+          id: userData.sub,
+          Workspace: { connect: { id: workspaceId } }
+        },
+        update: {
+          Workspace: { connect: { id: workspaceId } }
         }
       })
-
-      if (!user) {
-        user = await prisma.user.create({
-          data: {
-            id: userData.sub,
-            workspaces: {
-              connect: {
-                id: workspaceId
-              }
-            }
-          }
-        });
-      } else {
-        user = await prisma.user.update({
-          where: {
-            id: userData.sub
-          },
-          data: {
-            workspaces: {
-              connect: { id: workspaceId }
-            }
-          }
-        });
-      }
 
       res.status(200).json({ success: true, data: user });
     } else if (req.method === 'DELETE') { // Leave workspace

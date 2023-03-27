@@ -14,13 +14,19 @@ export default async function handler(req, res) {
       }
 
       const userData = decode(idToken);
+      const today = new Date();
 
       const workspace = await prisma.workspace.findFirst({
         where: {
-          AND: [{ id: workspaceId }, { userId: userData.sub }]
+          AND: [
+            { id: workspaceId },
+            { userId: userData.sub },
+            { lastMeeting: { lt: today } }
+          ]
         },
         include: {
-          members: true
+          members: true,
+          questions: { orderBy: { index: "asc" } }
         }
       })
 
@@ -29,16 +35,26 @@ export default async function handler(req, res) {
         return
       }
 
-      const members = workspace.members.map(d => d.id);
+      const updatedWorkspace = await prisma.workspace.update({
+        where: { id: workspace.id },
+        data: { lastMeeting: today }
+      });
 
+      const members = workspace.members.map(d => d.id);
       if (members.length > 0) {
-        await client.multicast(members, {
-          type: 'text',
-          text: "Let's standup yall!",
-        });
+        await client.multicast(members, [
+          {
+            type: 'text',
+            text: "You boss have start the meeting please answer question below",
+          },
+          {
+            type: 'text',
+            text: workspace.questions[0].name,
+          }
+        ]);
       }
 
-      res.status(200).json({ success: true });
+      res.status(200).json({ success: true, data: updatedWorkspace });
     } else if (req.method === 'GET') { // Get standup response detail
       res.status(401).send('METHOD_NOT_ALLOW');
     } else {
