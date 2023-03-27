@@ -165,7 +165,7 @@ export default async function handler(req, res) {
 
       res.status(200).json({ success: true, data: newWorkspace });
     } else if (req.method === 'DELETE') { // Delete workspace
-      const { idToken, workspaceId } = req.query;
+      const { idToken, workspaceId } = req.body;
 
       if (!idToken || !workspaceId) return res.status(401).json({ error: "MISS_INPUT" })
 

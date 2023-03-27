@@ -71,8 +71,8 @@ export default async function handler(req, res) {
                 responses: {
                   where: {
                     createdAt: {
-                      gte: today.setHours(0, 0, 0, 0),
-                      lt: today.setHours(23, 59, 59, 999),
+                      gte: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0),
+                      lt: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59),
                     },
                     submitAt: null
                   },
