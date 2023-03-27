@@ -21,7 +21,12 @@ export default async function handler(req, res) {
           AND: [
             { id: workspaceId },
             { userId: userData.sub },
-            { lastMeeting: { lt: today } }
+            {
+              OR: [
+                { lastMeeting: { lt: today } },
+                { lastMeeting: null }
+              ]
+            }
           ]
         },
         include: {
