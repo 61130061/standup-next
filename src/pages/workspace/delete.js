@@ -21,7 +21,7 @@ export default function DeleteWorkspace ({ liff, liffError, idToken, devToken })
           console.log(data);
         })
     }
-  }, [liff, idToken, devToken]);
+  }, [liff]);
 
   function getStrHnM(timeString) {
     const date = new Date(timeString);
@@ -103,7 +103,7 @@ export default function DeleteWorkspace ({ liff, liffError, idToken, devToken })
             {workspaces.length == 0 ?
               <div className="text-center my-5">no workspaces found</div> :
               workspaces.map((d, i) =>
-                <div onClick={() => onDelete(d)} className="border rounded-lg p-3 my-3">
+                <div key={i} onClick={() => onDelete(d)} className="border rounded-lg p-3 my-3">
                   <div className="flex justify-between items-start">
                     <h3 className="text-lg mb-2 font-semibold">{d.name}</h3>
 
