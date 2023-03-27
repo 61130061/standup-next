@@ -21,7 +21,7 @@ export default function DeleteWorkspace ({ liff, liffError, idToken, devToken })
           console.log(data);
         })
     }
-  }, [liff]);
+  }, [liff, idToken, devToken]);
 
   function getStrHnM(timeString) {
     const date = new Date(timeString);
