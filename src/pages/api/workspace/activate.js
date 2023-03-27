@@ -29,14 +29,17 @@ export default async function handler(req, res) {
         return
       }
 
-      await middleware(req, res, async () => {
-        const members = workspace.members.map(d => d.id);
+      const members = workspace.members.map(d => d.id);
 
-        await client.pushMessage(members[0], {
+      console.log(members, workspace);
+
+      if (members.length > 0) {
+        console.log('multicast')
+        await client.multicast(members, {
           type: 'text',
           text: "Let's standup yall!",
         });
-      });
+      }
 
       res.status(200).json({ success: true });
     } else if (req.method === 'GET') { // Get standup response detail

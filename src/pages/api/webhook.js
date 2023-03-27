@@ -56,20 +56,14 @@ export default async function handler(req, res) {
       for (const event of events) {
         if (event.type === 'message' && event.message.type === 'text') {
           if (event.source.type === 'user') { // individual chat
-            switch (event.message.text) {
-              case 'standup':
-                const workspaces = await prisma.workspace.findMany({
-                  where: { userId: event.source.userId }
-                })
+            if (event.message.text == "standup") {
+              const workspaces = await prisma.workspace.findMany({
+                where: { userId: event.source.userId }
+              })
 
+              if (workspaces.length > 0) {
                 await client.replyMessage(event.replyToken, headerMenu(workspaces));
-              default:
-                await client.replyMessage(event.replyToken, [
-                  {
-                    type: 'text',
-                    text: "Hello! Let's standup for a bit.",
-                  }
-                ]);
+              }
             }
           } else { // group/multi-person chat
             if (event.message.text.toLowerCase() === 'standup') {
