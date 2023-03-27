@@ -31,10 +31,7 @@ export default async function handler(req, res) {
 
       const members = workspace.members.map(d => d.id);
 
-      console.log(members, workspace);
-
       if (members.length > 0) {
-        console.log('multicast')
         await client.multicast(members, {
           type: 'text',
           text: "Let's standup yall!",

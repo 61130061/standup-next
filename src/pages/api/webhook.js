@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       for (const event of events) {
         if (event.type === 'message' && event.message.type === 'text') {
           if (event.source.type === 'user') { // individual chat
-            if (event.message.text == "standup") {
+            if (event.message.text.toLowerCase() == "standup") {
               const workspaces = await prisma.workspace.findMany({
                 where: { userId: event.source.userId }
               })
