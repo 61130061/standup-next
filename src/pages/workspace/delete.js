@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Head from "next/head";
 import Link from 'next/link'
 
@@ -6,6 +7,8 @@ export default function DeleteWorkspace ({ liff, liffError, idToken, devToken })
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [debug, setDebug] = useState('Loading...');
+
+  const router = useRouter();
 
   useEffect(() => {
     if (liff) {
@@ -54,6 +57,7 @@ export default function DeleteWorkspace ({ liff, liffError, idToken, devToken })
         .then(res => {
           if (res.success) {
             setLoading(false);
+            router.reload(window.location.pathname);
           } else {
             console.log(res.error);
             if (res.error == "ALREADY_MEMBER") {

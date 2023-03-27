@@ -82,7 +82,7 @@ export default async function handler(req, res) {
               }
             });
 
-            if (user.responses.length > 0) { // user is answering quesiton
+            if (user && user.responses.length > 0) { // user is answering quesiton
               const workspace = await prisma.workspace.findUnique({
                 where: { id: user.workspaceId },
                 include: {
