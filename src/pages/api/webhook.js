@@ -284,8 +284,10 @@ export default async function handler(req, res) {
           }
         } else if (event.type === 'postback') {
           const postbackData = event.postback.data;
+          console.log(postbackData);
           const parsedData = JSON.parse(postbackData);
-
+          console.log(parsedData);
+         
           if (parsedData.action === 'confirm_response') {
             if (parsedData.result === 'confirm') {
               // confirm response
