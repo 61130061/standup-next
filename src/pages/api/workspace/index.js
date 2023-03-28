@@ -169,6 +169,8 @@ export default async function handler(req, res) {
 
       const userData = decode(idToken);
 
+      await prisma.$transaction();
+
       const delTransaction = await prisma.$transaction(async (tx) => {
         const workspace = await tx.workspace.findFirst({
           where: {
@@ -193,8 +195,6 @@ export default async function handler(req, res) {
         const delWorkspace = await tx.workspace.delete({
           where: { id: workspace.id }
         })
-
-        tx.commit();
 
         return delWorkspace;
       })
