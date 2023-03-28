@@ -197,11 +197,11 @@ export default async function handler(req, res) {
           where: { id: workspace.id }
         })
 
-        if (workspace.Chatroom.workspaces.length <= 1) {
-          await tx.chatroom.delete({
-            where: { id: workspace.Chatroom.id }
-          })
-        }
+        await tx.chatroom.delete({
+          where: {
+            AND: [{ id: workspace.Chatroom.id },{ workspaces: [] }]
+          }
+        })
 
         return delWorkspace;
       })
