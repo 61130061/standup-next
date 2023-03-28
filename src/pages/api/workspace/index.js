@@ -169,8 +169,6 @@ export default async function handler(req, res) {
 
       const userData = decode(idToken);
 
-      await prisma.$transaction();
-
       const delTransaction = await prisma.$transaction(async (tx) => {
         const workspace = await tx.workspace.findFirst({
           where: {
