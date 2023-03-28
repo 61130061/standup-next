@@ -175,7 +175,9 @@ export default async function handler(req, res) {
             AND: [{ id: workspaceId }, { userId: userData.sub }]
           },
           include: {
-            Chatroom: true
+            Chatroom: {
+              include: { workspaces: true }
+            }
           }
         })
 
@@ -197,14 +199,13 @@ export default async function handler(req, res) {
           where: { id: workspace.id }
         })
 
-        console.log(workspace.chatroom);
         console.log(workspace.Chatroom);
 
-        await tx.chatroom.deleteMany({
-          where: {
-            AND: [{ id: workspace.Chatroom.id },{ workspaces: [] }]
-          }
-        })
+        if (workspace.Chatroom.workspaces.length <= 1) {
+          await tx.chatroom.delete({
+            where: { id: workspace.Chatroom.id }
+          })
+        }
 
         return delWorkspace;
       })
