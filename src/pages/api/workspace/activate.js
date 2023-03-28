@@ -1,7 +1,7 @@
 import { decode } from 'jsonwebtoken';
 
 import prisma from '../../../server/db';
-import { client, middleware } from '../../../server/line';
+import { client } from '../../../server/line';
 
 export default async function handler(req, res) {
   try {
@@ -46,7 +46,20 @@ export default async function handler(req, res) {
       });
 
       const members = workspace.members.map(d => d.id);
+
       if (members.length > 0) {
+        const responses = members.map(d => ({
+          content: [],
+          User: {
+            connect: { id: d }
+          },
+          Workspace: {
+            connect: { id: workspace.id }
+          }
+        }));
+
+        await prisma.response.createMany({ data: responses, skipDuplicates: true  });
+
         await client.multicast(members, [
           {
             type: 'text',
@@ -59,7 +72,7 @@ export default async function handler(req, res) {
         ]);
       }
 
-      res.status(200).json({ success: true, data: updatedWorkspace });
+      res.status(200).json({ success: true, data: updatedWorkspace});
     } else if (req.method === 'GET') { // Get standup response detail
       res.status(401).send('METHOD_NOT_ALLOW');
     } else {

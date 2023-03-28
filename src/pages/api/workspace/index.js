@@ -1,7 +1,7 @@
 import { decode } from 'jsonwebtoken';
 
 import prisma from '../../../server/db';
-import { LIFF_URL, client, middleware } from '../../../server/line';
+import { LIFF_URL, client } from '../../../server/line';
 
 const inviteFlex = (workspace) => {
   const hours = workspace.start.getHours();
@@ -123,12 +123,10 @@ export default async function handler(req, res) {
         }
       })
 
-      await middleware(req, res, async () => {
-        await client.pushMessage(newWorkspace.roomId, {
-          "type": "flex",
-          "altText": "invite to workspace flex message",
-          "contents": inviteFlex(newWorkspace)
-        });
+      await client.pushMessage(newWorkspace.roomId, {
+        "type": "flex",
+        "altText": "invite to workspace flex message",
+        "contents": inviteFlex(newWorkspace)
       });
 
       res.status(200).send('SUCCESS');
