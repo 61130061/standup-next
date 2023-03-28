@@ -282,7 +282,7 @@ export default async function handler(req, res) {
               await client.replyMessage(event.replyToken, standupMenu(room.id));
             } 
           }
-        } else if (event.type === 'postbakc') {
+        } else if (event.type === 'postback') {
           const postbackData = event.postback.data;
           const parsedData = JSON.parse(postbackData);
 
