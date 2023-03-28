@@ -169,8 +169,8 @@ export default async function handler(req, res) {
 
       const userData = decode(idToken);
 
-      const delTransaction = await prisma.$transaction(async (prisma) => {
-        const workspace = await prisma.workspace.findFirst({
+      const delTransaction = await prisma.$transaction(async (tx) => {
+        const workspace = await tx.workspace.findFirst({
           where: {
             AND: [{ id: workspaceId }, { userId: userData.sub }]
           }
@@ -178,17 +178,19 @@ export default async function handler(req, res) {
 
         if (!workspace) throw new Error("UNAUTHORIZED_ACCOUNT")
 
-        await prisma.user.deleteMany({
+        await tx.user.deleteMany({
           where: { workspaceId: workspace.id }
         })
 
-        await prisma.question.deleteMany({
+        await tx.question.deleteMany({
           where: { workspaceId: workspace.id }
         })
 
-        const delWorkspace = await prisma.workspace.delete({
+        const delWorkspace = await tx.workspace.delete({
           where: { id: workspace.id }
         })
+
+        tx.commit();
 
         return delWorkspace;
       })

@@ -50,12 +50,8 @@ export default async function handler(req, res) {
       if (members.length > 0) {
         const responses = members.map(d => ({
           content: [],
-          User: {
-            connect: { id: d }
-          },
-          Workspace: {
-            connect: { id: workspace.id }
-          }
+          userId: d,
+          workspaceId: workspace.id
         }));
 
         await prisma.response.createMany({ data: responses, skipDuplicates: true  });
