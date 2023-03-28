@@ -73,7 +73,7 @@ const confirmAnswer = (res, qs) => {
         "contents": [
           {
             "type": "text",
-            "text": qs[i],
+            "text": qs[i].name,
             "size": "sm",
             "weight": "bold",
             "wrap": true
@@ -169,7 +169,7 @@ const confirmAnswer = (res, qs) => {
               "action": {
                 "type": "postback",
                 "label": "Reanswer",
-                "data": "action=confirm_response&result=reanswer&responseId=" + res.id + "&question=" + qs[0]
+                "data": "action=confirm_response&result=reanswer&responseId=" + res.id + "&question=" + qs[0].name
               }
             }
           ]
