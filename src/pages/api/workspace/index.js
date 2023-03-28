@@ -197,7 +197,10 @@ export default async function handler(req, res) {
           where: { id: workspace.id }
         })
 
-        await tx.chatroom.delete({
+        console.log(workspace.chatroom);
+        console.log(workspace.Chatroom);
+
+        await tx.chatroom.deleteMany({
           where: {
             AND: [{ id: workspace.Chatroom.id },{ workspaces: [] }]
           }
