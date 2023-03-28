@@ -178,6 +178,10 @@ export default async function handler(req, res) {
 
         if (!workspace) throw new Error("UNAUTHORIZED_ACCOUNT")
 
+        await tx.response.deleteMany({
+          where: { workspaceId: workspace.id }
+        })
+
         await tx.user.deleteMany({
           where: { workspaceId: workspace.id }
         })

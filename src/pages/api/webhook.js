@@ -107,7 +107,7 @@ export default async function handler(req, res) {
                 // reply next question
                 await client.replyMessage(event.replyToken, {
                   type: 'text',
-                  text: workspace.questions[content.length]
+                  text: workspace.questions[content.length].name
                 });
               } else {
                 // TODO: send confirm submit flex message to API submit answer 
