@@ -173,6 +173,9 @@ export default async function handler(req, res) {
         const workspace = await tx.workspace.findFirst({
           where: {
             AND: [{ id: workspaceId }, { userId: userData.sub }]
+          },
+          include: {
+            Chatroom: true
           }
         })
 
@@ -193,6 +196,12 @@ export default async function handler(req, res) {
         const delWorkspace = await tx.workspace.delete({
           where: { id: workspace.id }
         })
+
+        if (workspace.Chatroom.workspaces.length <= 1) {
+          await tx.chatroom.delete({
+            where: { id: workspace.Chatroom.id }
+          })
+        }
 
         return delWorkspace;
       })
