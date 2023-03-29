@@ -294,19 +294,49 @@ export default async function handler(req, res) {
         } else if (event.type === 'postback') {
           const postbackData = event.postback.data;
           const parsedData = JSON.parse(postbackData);
-          console.log(parsedData);
 
           if (parsedData.action === 'confirm_response') {
             if (parsedData.result) {
               // confirm response
               console.log('confirm answer');
-              await client.replyMessage(event.replyToken, {
-                type: 'text',
-                text: 'Your answer successfully is submitted to your boss!'
-              });
+
+              const response = await prisma.response.findUnique({
+                where: { id: parsedData.responseId },
+                include: { workspace: true }
+              })
+
+              if (!response) return res.status(401).send("RESPONSE_NOT_FOUND")
+
+              const now = new Date();
+              // Set late time as 5 hours after meeting as default
+              const endTime = new Date(response.workspace.lastMeeting.getTime() + 5 * 60 * 60 * 1000);
+
+              if (now <= endTime) {
+                await prisma.response.update({
+                  where: { id: parsedData.responseId },
+                  data: { submitAt: today }
+                })
+                await client.replyMessage(event.replyToken, {
+                  type: 'text',
+                  text: 'Your answer successfully is submitted to your boss!'
+                });
+              } else { // You are late
+                await prisma.response.delete({
+                  where: { id: parsedData.responseId }
+                });
+                await client.replyMessage(event.replyToken, {
+                  type: 'text',
+                  text: 'Submit not success because you are late.'
+                });
+              }
             } else {
               // reanswer
               console.log('reanswer');
+
+              await prisma.response.update({
+                where: { id: parsedData.responseId },
+                data: { content: [] }
+              })
               await client.replyMessage(event.replyToken, [
                 {
                   type: 'text',
