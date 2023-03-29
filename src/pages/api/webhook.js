@@ -302,14 +302,14 @@ export default async function handler(req, res) {
 
               const response = await prisma.response.findUnique({
                 where: { id: parsedData.responseId },
-                include: { workspace: true }
+                include: { Workspace: true }
               })
 
               if (!response) return res.status(401).send("RESPONSE_NOT_FOUND")
 
               const now = new Date();
               // Set late time as 5 hours after meeting as default
-              const endTime = new Date(response.workspace.lastMeeting.getTime() + 5 * 60 * 60 * 1000);
+              const endTime = new Date(response.Workspace.lastMeeting.getTime() + 5 * 60 * 60 * 1000);
 
               if (now <= endTime) {
                 await prisma.response.update({
