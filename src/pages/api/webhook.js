@@ -314,7 +314,7 @@ export default async function handler(req, res) {
               if (now <= endTime) {
                 await prisma.response.update({
                   where: { id: parsedData.responseId },
-                  data: { submitAt: today }
+                  data: { submitAt: now }
                 })
                 await client.replyMessage(event.replyToken, {
                   type: 'text',
