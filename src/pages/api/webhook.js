@@ -161,7 +161,11 @@ const confirmAnswer = (res, qs) => {
               "action": {
                 "type": "postback",
                 "label": "Confirm",
-                "data": "action=confirm_response&result=confirm&responseId=" + res.id
+                data: JSON.stringify({
+                  action: 'confirm_response',
+                  result: true,
+                  responseId: res.id
+                })
               }
             },
             {
@@ -169,7 +173,12 @@ const confirmAnswer = (res, qs) => {
               "action": {
                 "type": "postback",
                 "label": "Reanswer",
-                "data": "action=confirm_response&result=reanswer&responseId=" + res.id + "&question=" + qs[0].name
+                data: JSON.stringify({
+                  action: 'confirm_response',
+                  result: false,
+                  responseId: res.id,
+                  question: qs[0].name
+                })
               }
             }
           ]
@@ -284,19 +293,18 @@ export default async function handler(req, res) {
           }
         } else if (event.type === 'postback') {
           const postbackData = event.postback.data;
-          console.log(postbackData);
           const parsedData = JSON.parse(postbackData);
           console.log(parsedData);
-         
+
           if (parsedData.action === 'confirm_response') {
-            if (parsedData.result === 'confirm') {
+            if (parsedData.result) {
               // confirm response
               console.log('confirm answer');
               await client.replyMessage(event.replyToken, {
                 type: 'text',
                 text: 'Your answer successfully is submitted to your boss!'
               });
-            } else if (parsedData.result === 'reanswer') {
+            } else {
               // reanswer
               console.log('reanswer');
               await client.replyMessage(event.replyToken, [
@@ -306,9 +314,9 @@ export default async function handler(req, res) {
                 },
                 {
                   type: 'text',
-                  text: parsedData.question 
+                  text: parsedData.question
                 }
-            ]);
+              ]);
             }
           }
         }
